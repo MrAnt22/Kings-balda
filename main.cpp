@@ -16,18 +16,18 @@ void checkField();
 char field[SIZE][SIZE];
 int score = 0;
 bool isFirstPlayer = true;
-set<string> foundWords;
 
+set<string> foundWords;
 set<string> allWords;
-set<string> l5Words;
-set<string> l4Words;
-set<string> l3Words;
 
 int main() {
     //DICTIONARY SHIT
     string word;
     ifstream dict("dictionary.txt");
     while(getline(dict, word)) {
+        for (auto& x : word) {
+        x = toupper(x);
+        }
         allWords.insert(word);
     }
     dict.close();
@@ -41,7 +41,7 @@ int main() {
     }
 
     for(int i = 0; i < SIZE-0; i++) {
-        field[0][i] = GOD_WORD[i-0];
+        field[2][i] = GOD_WORD[i-0];
     }
     
     //main loop
@@ -102,36 +102,23 @@ void displayField() {
 void checkField() {
     bool isWord = true;
 
-    int length = 5;
+    int length;
 
-    for(int t = 0; t < (6-length); t++) {
-        isWord = true;
-        cout << endl;
-        for(int i = 0; i < SIZE; i++) {
-            for (auto wrd: allWords) {
+    //horizontal
+    for(int i = 0; i < SIZE; i++) {
+        for (string wrd: allWords) {
+            length = wrd.length();
+            for(int t = 0; t < (6-length); t++) {
                 isWord = true;
-                for(int j = 0+t; j < SIZE; j++) {
-                        if(field[i][j] == wrd[j-t] && isWord) {
-                            isWord = true;
-                        } else {
-                            isWord = false;
-                        }
-                        if(j == SIZE-(6-length)+t && isWord) {
-                            foundWords.insert(wrd);
-                        }
+                for(int j = 0+t; j < length+t; j++) {
+                    if(field[i][j] == wrd[j-t] && isWord) {
+                        isWord = true;
+                    } else {
+                        isWord = false;
                     }
-            }
-        }
-        isWord = true;
-        for(int j= 0; j < SIZE; j++) {
-            for(int i = 0+t; i < SIZE; i++) {
-                if(field[i][j] == GOD_WORD[i-t] && isWord) {
-                    isWord = true;
-                } else {
-                    isWord = false;
-                }
-                if(i == SIZE-(6-length)+t && isWord) {
-                    foundWords.insert(GOD_WORD);
+                    if(j == SIZE-(6-length)+t && isWord) {
+                        foundWords.insert(wrd);
+                    }
                 }
             }
         }
