@@ -1,8 +1,10 @@
 #include <iostream>
 #include <set>
+#include <string>
+#include <fstream>
 
 #define SIZE 5
-#define GOD_WORD "GOD"
+#define GOD_WORD "APPLE"
 
 using namespace std;
 
@@ -16,7 +18,21 @@ int score = 0;
 bool isFirstPlayer = true;
 set<string> foundWords;
 
-int main(){
+set<string> allWords;
+set<string> l5Words;
+set<string> l4Words;
+set<string> l3Words;
+
+int main() {
+    //DICTIONARY SHIT
+    string word;
+    ifstream dict("dictionary.txt");
+    while(getline(dict, word)) {
+        allWords.insert(word);
+    }
+    dict.close();
+
+    //FIELD AND SHIT
     //initializaiton
     for(int i = 0; i < SIZE; i++) {
         for(int j = 0; j < SIZE; j++) {
@@ -24,7 +40,7 @@ int main(){
         }
     }
 
-    for(int i = 0; i < SIZE-2; i++) {
+    for(int i = 0; i < SIZE-0; i++) {
         field[0][i] = GOD_WORD[i-0];
     }
     
@@ -52,11 +68,6 @@ void mainLoop(string c) {
        checkField();
 }
 
-/*
-    ┏ ━ ┓ ┃ ┳ ┻ ╋ ┣ ┫ ┗ ┛
-
-*/
-
 bool writeToField(string inp) {
     int x = inp[0] - 49;
     int y = inp[1] - 65;
@@ -65,12 +76,10 @@ bool writeToField(string inp) {
     if(x < 0 || x > SIZE || y < 0 || y > SIZE) {
         return false;
     }
-
     if(((field[x-1][y] == ' ' || field[x-1][y] == 0) && (field[x+1][y] == ' ' || field[x+1][y] == 0)) && ((field[x][y-1] == ' ' || field[x][y-1] == 0) && (field[x][y+1] == ' ' || field[x][y+1] == 0))) {
         return false;
     }
 
-    //cout << x << " " << y  << " " << val << endl;
     field[x][y] = val;
     return true;
 }
@@ -93,22 +102,38 @@ void displayField() {
 void checkField() {
     bool isWord = true;
 
-    int length = 3;
+    int length = 5;
 
-    for(int t = 0; t < 3; t++) {
+    for(int t = 0; t < (6-length); t++) {
         isWord = true;
+        cout << endl;
         for(int i = 0; i < SIZE; i++) {
-            for(int j = 0+t; j < SIZE; j++) {
-                if(field[i][j] == GOD_WORD[j-t] && isWord) {
+            for (auto wrd: allWords) {
+                isWord = true;
+                for(int j = 0+t; j < SIZE; j++) {
+                        if(field[i][j] == wrd[j-t] && isWord) {
+                            isWord = true;
+                        } else {
+                            isWord = false;
+                        }
+                        if(j == SIZE-(6-length)+t && isWord) {
+                            foundWords.insert(wrd);
+                        }
+                    }
+            }
+        }
+        isWord = true;
+        for(int j= 0; j < SIZE; j++) {
+            for(int i = 0+t; i < SIZE; i++) {
+                if(field[i][j] == GOD_WORD[i-t] && isWord) {
                     isWord = true;
                 } else {
                     isWord = false;
                 }
-                if(j == SIZE-3+t && isWord) {
+                if(i == SIZE-(6-length)+t && isWord) {
                     foundWords.insert(GOD_WORD);
                 }
             }
         }
     }
-    
 }
