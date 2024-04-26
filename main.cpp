@@ -4,7 +4,7 @@
 #include <fstream>
 
 #define SIZE 5
-#define GOD_WORD "APPLE"
+#define GOD_WORD "LIGHT"
 
 using namespace std;
 
@@ -51,14 +51,23 @@ int main() {
     }
 }
 
+int yoScore(){
+    int sumScore = 0;
+    for(auto word: foundWords) {
+            //cout << word << ", ";
+            sumScore += word.length();
+        }
+    return sumScore;
+}
+
 void mainLoop(string c) {
         displayField();
         cout << "Your discovered words are: [";
         for(auto word: foundWords) {
-            cout << word << ", ";
+            cout << word << " " ;
         }
         cout << "]" << endl;
-        cout << "<Your score: {" << foundWords.size() << "}>"<<endl;
+        cout << "<Your score: {" << yoScore() << "}>"<<endl;
         cout << "Enter field pos and char [3A=X]:";
         cin >> c;
         cout << "\x1B[2J\x1B[H";
@@ -105,19 +114,21 @@ void checkField() {
     int length;
 
     //horizontal
-    for(int i = 0; i < SIZE; i++) {
-        for (string wrd: allWords) {
-            length = wrd.length();
-            for(int t = 0; t < (6-length); t++) {
-                isWord = true;
-                for(int j = 0+t; j < length+t; j++) {
-                    if(field[i][j] == wrd[j-t] && isWord) {
-                        isWord = true;
-                    } else {
-                        isWord = false;
-                    }
-                    if(j == SIZE-(6-length)+t && isWord) {
-                        foundWords.insert(wrd);
+    for(int isVertical = 0;isVertical < 2; isVertical++){
+        for(int i = 0; i < SIZE; i++) {
+            for (string wrd: allWords) {
+                length = wrd.length();
+                for(int t = 0; t < (6-length); t++) {
+                    isWord = true;
+                    for(int j = 0+t; j < length+t; j++) {
+                        if(field[isVertical?j:i][isVertical?i:j] == wrd[j-t] && isWord) {
+                            isWord = true;
+                        } else {
+                            isWord = false;
+                        }
+                        if(j == SIZE-(6-length)+t && isWord) {
+                            foundWords.insert(wrd);
+                        }
                     }
                 }
             }
