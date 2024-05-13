@@ -8,8 +8,16 @@
 
 using namespace std;
 
+class View;
+class Coordinates;
+class Control;
+class Board;
+class Dictionary;
+
 class Coordinates{
 public:
+    friend View;
+    friend Control;
     int x;
     int y;
     char symbol;
@@ -20,46 +28,14 @@ class Board{
     char field[SIZE][SIZE];
     int size = SIZE;
 public:
-    void display(){
-        cout << "┏━A━┳━B━┳━C━┳━D━┳━E━┓" << endl;
-        for(int i = 0; i < size; i++) {
-            cout << (i+1) << " ";
-            for(int j = 0; j < size; j++) {
-                cout << field[i][j] << " ┃ ";
-            }
-            cout << endl;
-            if(i != size-1) {
-                cout << "┣━━━╋━━━╋━━━╋━━━╋━━━┫" << endl;
-            }
-        }
-        cout << "┗━━━┻━━━┻━━━┻━━━┻━━━┛" << endl;  
-    }
-    bool place(Coordinates obj){
-        if(obj.x < 0 || obj.x > SIZE || obj.y < 0 || obj.y > SIZE) {
-            return false;
-        }
-        if(((field[obj.x-1][obj.y] == ' ' || field[obj.x-1][obj.y] == 0) && (field[obj.x+1][obj.y] == ' ' || field[obj.x+1][obj.y] == 0)) && ((field[obj.x][obj.y-1] == ' ' || field[obj.x][obj.y-1] == 0) && (field[obj.x][obj.y+1] == ' ' || field[obj.x][obj.y+1] == 0))) {
-            return false;
-        }
-        field[obj.x][obj.y] = obj.symbol;
-        return true;
-    }
-    void clearBoard(){
-        for(int i=0;i<size;i++){
-            for(int j=0;j<size;j++){
-                field[i][j] = ' ';
-            }
-        }
-    }
-    void centerWord(string word){
-        for(int i = 0; i < size-0; i++) {
-        field[size/2][i] = word[i-0];
-        }
-    }
+    friend View;
+    friend Control;
 };
 
 class Dictionary{
 public:
+    friend View;
+    friend Control;
     set<string> words;
     set<string> userWords;
     set<string> pcWords;
@@ -76,33 +52,89 @@ public:
         }
         dict.close();
     }
-    void introduceWord(string word){
-        words.insert(word);
-        ofstream MyFile(filename,ios::out | ios::app);
-        MyFile << word;
-        MyFile.close();
-    }
 };
 
-class Game{
-public:
-    bool isPlayerTurn;
-    void makeMove(){
-        //
-    }
-    Coordinates evaluateInput(string inp){
-        Coordinates obj;
-        obj.x = inp[0] - 49;
-        obj.y = inp[1] - 65;
-        obj.symbol = inp[3];
-        return obj;
-    }
+class View {
     int score(bool isUser,Dictionary dict){
         int sumScore = 0;
-        for(auto word: (isUser?dict.userWords:dict.pcWords)) {                                                                                                                              //cout << word << ", ";
+        for(auto word: (isUser?dict.userWords:dict.pcWords)) {
                 sumScore += word.length();
             }
         return sumScore;
+    }
+    public:
+    void displayBoard(Board& board){
+        cout << "┏━A━┳━B━┳━C━┳━D━┳━E━┓" << endl;
+        for(int i = 0; i < board.size; i++) {
+            cout << (i+1) << " ";
+            for(int j = 0; j < board.size; j++) {
+                cout << board.field[i][j] << " ┃ ";
+            }
+            cout << endl;
+            if(i != board.size-1) {
+                cout << "┣━━━╋━━━╋━━━╋━━━╋━━━┫" << endl;
+            }
+        }
+        cout << "┗━━━┻━━━┻━━━┻━━━┻━━━┛" << endl;  
+    }
+    void displayScores(Dictionary dict) {
+        cout << "The user's score is: {" << score(true, dict) << "}\n" << "The CPU's score is: {" << score(false, dict) << "}\n";
+    }
+    void displayWords(Dictionary dict) {
+        cout << "Your discovered words are: [";
+         int i = 0;
+        for(auto word: dict.userWords) {
+            cout << word << " " ;
+            if(i++>5) {
+                cout << endl; 
+                i = 0;
+            }
+        }
+        cout << "]" << endl;
+        cout << "CPU's discovered words are: [";
+        for(auto word: dict.userWords) {
+            cout << word << " " ;
+            if(i++>5) {
+                cout << endl; 
+                i = 0;
+            }
+        }
+        cout << "]" << endl;
+    }
+};
+
+class Control {
+    public:
+    bool isPlayerTurn = false;
+    void clearBoard(Board& board) {
+        for(int i=0;i<board.size;i++){
+            for(int j=0;j<board.size;j++){
+                board.field[i][j] = ' ';
+            }
+        }
+    }
+    bool place(Board& board, Coordinates obj) {
+        if(obj.x < 0 || obj.x > SIZE || obj.y < 0 || obj.y > SIZE) {
+            return false;
+        }
+        if(((board.field[obj.x-1][obj.y] == ' ' || board.field[obj.x-1][obj.y] == 0) && (board.field[obj.x+1][obj.y] == ' ' || board.field[obj.x+1][obj.y] == 0)) && ((board.field[obj.x][obj.y-1] == ' ' || board.field[obj.x][obj.y-1] == 0) && (board.field[obj.x][obj.y+1] == ' ' || board.field[obj.x][obj.y+1] == 0))) {
+            return false;
+        }
+        board.field[obj.x][obj.y] = obj.symbol;
+        return true;
+    }
+    Coordinates evaluateInput(string inp) {
+        Coordinates obj;
+        return obj;
+    }
+    //this is where the hardest part probably is
+    void makeMove(Board& board, Dictionary Dictionary) {
+        
+    }
+    void centerWord(Board& board, string word) {
+        for(int i = 0; i < board.size-0; i++) {
+            board.field[board.size/2][i] = word[i-0];
+        }
     }
 };
 
@@ -110,25 +142,24 @@ int main() {
     Dictionary dict;
     dict.loadDictionary();
     
-    Board board;
-    board.clearBoard();
-    board.centerWord(GOD_WORD);
+    View viewport;
+    Control game;
 
-    Game game;
-    
+    Board board;
+
+    game.clearBoard(board);
+    game.centerWord(board, GOD_WORD);
 
     string c;
-    dict.introduceWord("skibidi toilet");
     while(c[0] != '!') {
-        board.display();
-        cout << "Your discovered words are: [";
-        for(auto word: dict.userWords) {
-            cout << word << " " ;
-        }
-        cout << "]" << endl;
-        cout << "<Your score: {" << game.score(true, dict) << "}>"<<endl;
+        viewport.displayBoard(board);
+        cout << endl;
+        viewport.displayWords(dict);
+        viewport.displayScores(dict);
+        cout << endl;
         cout << "Enter field pos and char [3A=X]:";
         cin >> c;
+        //basically this shit is like a clear frame. clearing the console without clearing the console.
         cout << "\x1B[2J\x1B[H";
     }
 }
