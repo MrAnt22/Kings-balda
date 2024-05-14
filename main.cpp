@@ -4,7 +4,7 @@
 #include <fstream>
 
 #define SIZE 5
-#define GOD_WORD "MIPRN"
+#define GOD_WORD "THOSE"
 
 using namespace std;
 
@@ -48,8 +48,8 @@ public:
             for (auto& x : word) {
                 x = toupper(x);
             }
-            words.insert(word.substr(0,word.length()-1));
-            cout << word.substr(0,word.length()-1);
+            words.insert(word.substr(0,word.length()));
+            //cout << word.substr(0,word.length());
         }
         dict.close();
     }
@@ -60,7 +60,7 @@ class View {
         int sumScore = 0;
         for(auto word: (isUser?dict.userWords:dict.pcWords)) {
                 sumScore += word.length();
-                cout << word.length();
+                //cout << word.length();
             }
         return sumScore;
     }
@@ -117,11 +117,16 @@ class Control {
         string str;
         int x = obj.x;
         int y = obj.y;
-        for(int i = 0;i < 5;i++){
-            str = str + board.field[x][y];
-            x+=obj.move[i]/2;
-            y+=obj.move[i]%2;
+        for(int i = 0;i < 10;i++) {
+            if(obj.move[i]) {
+                str = str + board.field[x][y];
+                x+=obj.move[i]/2;
+                y+=obj.move[i]%2;
+            } else {
+                i = 10;
+            }
         }
+        cout << str << ";";
         for (string wrd: dict.words) {
             bool isWord = true;
             for(int sleep = 0; sleep < 2;sleep++){
@@ -132,7 +137,7 @@ class Control {
                 else {
                     isWord = false;
                 }
-                if(isWord && i == (int)wrd.length()-1){
+                if(isWord && i == (int)str.length()-1){
                     dict.userWords.insert(wrd);
                 }
                 }
@@ -146,21 +151,25 @@ class Control {
         obj.x = inp[0] - 49;
         obj.y = inp[1] - 65;
         obj.symbol = inp[3];
-        for(int i = 4;i<(int)inp.length();i++){
-            switch (inp[i]){
+        for(int i = 0;i<10;i++){
+            switch (i+3<(int)inp.length()-1?inp[i+4]:' '){
                 case 'L':
-                obj.move[i-4] = -1;
+                    obj.move[i] = -1;
                 break;
                 case 'U':
-                obj.move[i-4] = -2;
+                    obj.move[i] = -2;
                 break;
                 case 'D':
-                obj.move[i-4] = +2;
+                    obj.move[i] = +2;
                 break;
                 case 'R':
-                obj.move[i-4] = +1;
+                    obj.move[i] = +1;
+                break;
+                default:
+                    obj.move[i] = 0;
                 break;
             }
+            cout << obj.move[i];
         }
         return obj;
     }
@@ -188,7 +197,7 @@ int main() {
     game.centerWord(board, GOD_WORD);
 
     string c;
-    while(c[0] != '!') {
+    while(true) {
         viewport.displayBoard(board);
         cout << endl;
         viewport.displayWords(dict);
@@ -196,38 +205,17 @@ int main() {
         cout << endl;
         cout << "Enter field pos and char [3A=X]:";
         cin >> c;
+        if(c[0] == '!') {
+            break;
+        }
         Coordinates coord = game.evaluateInput(c);
-        game.place(board, coord, dict);
+        if( game.place(board, coord, dict)) {
+            game.makeMove(board, dict);
+        }
         //basically this shit is like a clear frame. clearing the console without clearing the console.
         cout << "\x1B[2J\x1B[H";
     }
 }
-// int yoScore(){
-//     int sumScore = 0;
-//     for(auto word: foundWords) {
-//             //cout << word << ", ";
-//             sumScore += word.length();
-//         }
-//     return sumScore;
-// }
-
-//void mainLoop(string c, Board board, Dictionary dict, Game game){
-    //     board.display();
-    //     cout << "Your discovered words are: [";
-    //     for(auto word: dict.userWords) {
-    //         cout << word << " " ;
-    //     }
-    //     cout << "]" << endl;
-    //     cout << "<Your score: {" << yoScore() << "}>"<<endl;
-    //     cout << "Enter field pos and char [3A=X]:";
-    //     cin >> c;
-    //     cout << "\x1B[2J\x1B[H";
-    //    if(!writeToField(c)) {
-    //         mainLoop(c);
-    //    }
-    //    checkField();
-//}
-
 
                                                                 /*Hall of Fame*/
 // void checkField() {
