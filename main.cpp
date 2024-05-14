@@ -4,7 +4,7 @@
 #include <fstream>
 
 #define SIZE 5
-#define GOD_WORD "LIGHT"
+#define GOD_WORD "MIPRN"
 
 using namespace std;
 
@@ -48,17 +48,19 @@ public:
             for (auto& x : word) {
                 x = toupper(x);
             }
-            words.insert(word);
+            words.insert(word.substr(0,word.length()-1));
+            cout << word.substr(0,word.length()-1);
         }
         dict.close();
     }
 };
 
 class View {
-    int score(bool isUser,Dictionary dict){
+    int score(bool isUser,Dictionary& dict){
         int sumScore = 0;
         for(auto word: (isUser?dict.userWords:dict.pcWords)) {
                 sumScore += word.length();
+                cout << word.length();
             }
         return sumScore;
     }
@@ -77,27 +79,18 @@ class View {
         }
         cout << "┗━━━┻━━━┻━━━┻━━━┻━━━┛" << endl;  
     }
-    void displayScores(Dictionary dict) {
+    void displayScores(Dictionary& dict) {
         cout << "The user's score is: {" << score(true, dict) << "}\n" << "The CPU's score is: {" << score(false, dict) << "}\n";
     }
-    void displayWords(Dictionary dict) {
-        cout << "Your discovered words are: [";
-         int i = 0;
+    void displayWords(Dictionary& dict) {
+        cout << "Your discovered words are:";
         for(auto word: dict.userWords) {
             cout << word << " " ;
-            if(i++>5) {
-                cout << endl; 
-                i = 0;
-            }
         }
         cout << "]" << endl;
-        cout << "CPU's discovered words are: [";
+        cout << "CPU's discovered words are:";
         for(auto word: dict.userWords) {
             cout << word << " " ;
-            if(i++>5) {
-                cout << endl; 
-                i = 0;
-            }
         }
         cout << "]" << endl;
     }
@@ -113,7 +106,7 @@ class Control {
             }
         }
     }
-    bool place(Board& board, Coordinates obj) {
+    bool place(Board& board, Coordinates& obj,Dictionary& dict) {
         if(obj.x < 0 || obj.x > SIZE || obj.y < 0 || obj.y > SIZE) {
             return false;
         }
@@ -121,14 +114,58 @@ class Control {
             return false;
         }
         board.field[obj.x][obj.y] = obj.symbol;
+        string str;
+        int x = obj.x;
+        int y = obj.y;
+        for(int i = 0;i < 5;i++){
+            str = str + board.field[x][y];
+            x+=obj.move[i]/2;
+            y+=obj.move[i]%2;
+        }
+        for (string wrd: dict.words) {
+            bool isWord = true;
+            for(int sleep = 0; sleep < 2;sleep++){
+                for(int i = 0; i < (int)wrd.length();i++){
+                if(str[i] == wrd[sleep? (int)wrd.length()-i-1:i] && isWord){
+                    isWord = true;
+                }
+                else {
+                    isWord = false;
+                }
+                if(isWord && i == (int)wrd.length()-1){
+                    dict.userWords.insert(wrd);
+                }
+                }
+            }
+            
+        }
         return true;
     }
     Coordinates evaluateInput(string inp) {
         Coordinates obj;
+        obj.x = inp[0] - 49;
+        obj.y = inp[1] - 65;
+        obj.symbol = inp[3];
+        for(int i = 4;i<(int)inp.length();i++){
+            switch (inp[i]){
+                case 'L':
+                obj.move[i-4] = -1;
+                break;
+                case 'U':
+                obj.move[i-4] = -2;
+                break;
+                case 'D':
+                obj.move[i-4] = +2;
+                break;
+                case 'R':
+                obj.move[i-4] = +1;
+                break;
+            }
+        }
         return obj;
     }
     //this is where the hardest part probably is
-    void makeMove(Board& board, Dictionary Dictionary) {
+    void makeMove(Board& board, Dictionary& Dictionary) {
         
     }
     void centerWord(Board& board, string word) {
@@ -159,6 +196,8 @@ int main() {
         cout << endl;
         cout << "Enter field pos and char [3A=X]:";
         cin >> c;
+        Coordinates coord = game.evaluateInput(c);
+        game.place(board, coord, dict);
         //basically this shit is like a clear frame. clearing the console without clearing the console.
         cout << "\x1B[2J\x1B[H";
     }
