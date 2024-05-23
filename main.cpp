@@ -10,11 +10,11 @@ using namespace std;
 
 class View;
 class Coordinates;
-class Control;
-class Board;
+struct Control;
+struct Board;
 class Dictionary;
 
-class Coordinates{
+struct Coordinates{
 public:
     friend View;
     friend Control;
@@ -24,7 +24,7 @@ public:
     int move[10];
 };
 
-class Board{
+struct Board{
     char field[SIZE][SIZE];
     int size = SIZE;
 public:
