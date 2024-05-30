@@ -62,7 +62,7 @@ public:
             }
             words.insert(word.substr(0,word.length()));
 
-            if((word.size() == 5 && beginningWord == "") && (random()%20) == 0 ) {
+            if((word.size() == 5 && beginningWord == "") && (rand()%20) == 0 ) {
                 beginningWord = word;
             }
         }
