@@ -15,3 +15,19 @@
 - [Балда](https://ru.wikipedia.org/wiki/%D0%91%D0%B0%D0%BB%D0%B4%D0%B0_(%D0%B8%D0%B3%D1%80%D0%B0)) на Вікіпедії (російською)
 
 - [Балда](https://balda.org.ua/) онлайн
+
+## TODO LIST
+
+- [ ] bot make move: randomize position
+
+- [ ] easy difficulty: skip sometime move
+- [ ]medium difficulty: no skip just move
+- [ ] hard difficulty: see all moves then do move
+
+- [ ] ukrainian dictionary
+
+- [ ] leaderboards
+
+- [ ] easter egg zip bomb
+
+- [ ] funny easter eggs
