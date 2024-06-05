@@ -18,15 +18,17 @@
 
 ## TODO LIST
 
-- [ ] bot make move: randomize position
+- [x] bot make move: randomize position
 
 - [ ] easy difficulty: skip sometime move
-- [ ]medium difficulty: no skip just move
+- [ ] medium difficulty: no skip just move
 - [ ] hard difficulty: see all moves then do move
 
 - [ ] ukrainian dictionary
 
 - [ ] leaderboards
+
+- [x] 2 players gameplay
 
 - [ ] easter egg zip bomb
 

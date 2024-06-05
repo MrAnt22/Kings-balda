@@ -4,31 +4,33 @@
 #include "dictionary.h"
 
 #include <set>
+#include <vector>
 #include <string>
 #include <fstream>
 #include <algorithm>
 #include <iostream>
+#include <random>
 
 using namespace std;
 
 class Dictionary;
 
 bool Control::canFormWord(Board& board, const string& word, int i, int j) {
-    if (dfs(board, word, i, j, 0) && (board.field[i][j] == word[0])) {
+    if (dfs(board, word, i, j, 0) && (board.field[i][j] == word.at(0))) {
         return true;
     }
     string test = word;
     reverse(test.begin(), test.end());
-    if (dfs(board, test, i, j, 0) && (board.field[i][j] == test[0])) {
+    if (dfs(board, test, i, j, 0) && (board.field[i][j] == test.at(0))) {
         return true;
     }
     return false;
 }
 
 bool Control::dfs(Board& board, const string& word, int r, int c, int index) {
-    if (index == (int)word.size()) return true;
+    if (index == (int)word.length()) return true;
     
-    if (r < 0 || c < 0 || r >= board.size || c >= board.size || board.field[r][c] == '\0' || board.field[r][c] != word[index]) {
+    if (r < 0 || c < 0 || r >= board.size || c >= board.size || board.field[r][c] == '\0' || board.field[r][c] != word.at(index)) {
         return false;
     }
     
@@ -58,7 +60,7 @@ void Control::randomizeFirstPlayer() {
     isFirstPlayerFirst = rand()%2;
 }
  
-bool Control::place(Board& board, Coordinates& obj, Dictionary& dict) {
+bool Control::place(Board& board, Coordinates& obj, Dictionary& dict, bool isP2) {
     if(obj.ignore) {
         return false;
     }
@@ -69,7 +71,6 @@ bool Control::place(Board& board, Coordinates& obj, Dictionary& dict) {
         return false;
     }
     if(board.field[obj.x][obj.y] != '\0') {
-        cout << board.field[obj.x][obj.y] << endl;
         return false;
     }
     board.field[obj.x][obj.y] = obj.symbol;
@@ -83,18 +84,29 @@ bool Control::place(Board& board, Coordinates& obj, Dictionary& dict) {
             x+=obj.move[i]/2;
             y+=obj.move[i]%2;
             str += board.field[x][y];
+            if(x==obj.x && y==obj.y) {
+                return false;
+            }
         } else {
             str[i+1] = '\0';
             i = 10;
         }
     }
     if(canFormWord(board, str, x, y) && (dict.words.find(str) != dict.words.end())) {
-        dict.userWords.insert(str);
+        if(!isP2) {
+            dict.userWords.insert(str);
+        } else {
+            dict.pcWords.insert(str);
+        }
         return true;
     }
     reverse(str.begin(), str.end());
     if(canFormWord(board, str, x, y) && (dict.words.find(str) != dict.words.end())) {
-        dict.userWords.insert(str);
+        if(!isP2) {
+            dict.userWords.insert(str);
+        } else {
+            dict.pcWords.insert(str);
+        }
         return true;
     }
     board.field[obj.x][obj.y] = '\0';
@@ -133,7 +145,6 @@ Coordinates Control::evaluateInput(string inp) {
 }
 
 bool Control::generateMove(Board& board, Dictionary& dict) {
-    cout << "avalabele";
     for (int i = 0; i < board.size; ++i) {
         for (int j = 0; j < board.size; ++j) {
             if (board.field[i][j] == '\0') {
@@ -143,7 +154,6 @@ bool Control::generateMove(Board& board, Dictionary& dict) {
                         if((dict.userWords.find(word) == dict.userWords.end() && dict.pcWords.find(word) == dict.pcWords.end()) && word != dict.beginningWord) {
                             if (canFormWord(board, word, i, j)) {
                                 board.field[i][j] = '\0';
-                                cout << word << " ";
                                 return true;
                             }
                         }
@@ -157,28 +167,38 @@ bool Control::generateMove(Board& board, Dictionary& dict) {
 }
 
 bool Control::generateMove(Board& board, Dictionary& dict, string& res, int& misx, int& misy, char& misch) {
-    for (int i = 0; i < board.size; ++i) {
-        for (int j = 0; j < board.size; ++j) {
-            if (board.field[i][j] == '\0') {
-                for (char c = 'A'; c < 'Z'; c++) {
-                    board.field[i][j] = c;
-                    for (auto word : dict.words) {
-                        if((dict.userWords.find(word) == dict.userWords.end() && dict.pcWords.find(word) == dict.pcWords.end()) && word != dict.beginningWord) {
-                            if (canFormWord(board, word,i ,j )) {
-                                board.field[i][j] = '\0';
-                                //cout << "\n" << word << "\n";
-                                res = word;
-                                misx = i;
-                                misy = j;
-                                misch = c;
-                                board.field[i][j] = c;
-                                dict.pcWords.insert(word);
-                                return true;
-                            }
+    srand(time(0));
+
+    vector<pair<int, int>> coordinates;
+    for (int x = 0; x < 5; ++x) {
+        for (int y = 0; y < 5; ++y) {
+            coordinates.emplace_back(x, y);
+        }
+    }
+
+    shuffle(coordinates.begin(), coordinates.end(), default_random_engine(rand()));
+
+    for (const auto& coord : coordinates) {
+        int i = coord.first;
+        int j = coord.second;
+        if (board.field[i][j] == '\0') {
+            for (char c = 'A'; c < 'Z'; c++) {
+                board.field[i][j] = c;
+                for (auto word : dict.words) {
+                    if((dict.userWords.find(word) == dict.userWords.end() && dict.pcWords.find(word) == dict.pcWords.end()) && word != dict.beginningWord) {
+                        if (canFormWord(board, word,i ,j )) {
+                            board.field[i][j] = '\0';
+                            res = word;
+                            misx = i;
+                            misy = j;
+                            misch = c;
+                            board.field[i][j] = c;
+                            dict.pcWords.insert(word);
+                            return true;
                         }
                     }
-                    board.field[i][j] = '\0';
                 }
+                board.field[i][j] = '\0';
             }
         }
     }
@@ -186,7 +206,7 @@ bool Control::generateMove(Board& board, Dictionary& dict, string& res, int& mis
 }
 
 void Control::centerWord(Board& board, string word) {
-    for(int i = 0; i < board.size-0; i++) {
-        board.field[board.size/2][i] = word[i-0];
+    for(int i = 0; i < board.size; i++) {
+        board.field[board.size/2][i] = word.at(i);
     }
 }

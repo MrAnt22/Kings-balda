@@ -48,14 +48,14 @@ void View::displayScores(Dictionary& dict, bool isPc) {
 void View::displayWords(Dictionary& dict, bool isPc) {
     cout << "P1's discovered words are: {";
     for(auto word: dict.userWords) {
-        cout << word << " " ;
+        cout << word << "," ;
     }
-    cout << "}" << endl;
+    cout << (dict.userWords.size()==0 ? " " : "\b") << "}" << endl;
     cout << (isPc ? "PC" : "P2") << "'s discovered words are: {";
     for(auto word: dict.pcWords) {
-        cout << word << " " ;
+        cout << word << "," ;
     }
-    cout << "}" << endl;
+    cout << (dict.pcWords.size()==0 ? " " : "\b") << "}" << endl;
 }
 
 void View::refreshScreen() {

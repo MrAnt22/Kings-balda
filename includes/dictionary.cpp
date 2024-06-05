@@ -5,11 +5,21 @@
 #include <fstream>
 #include <iostream>
 
+#define GOD_WORD "LIGHT"
+#define DICTEN "dict_en.txt"
+#define DICTUA "dict_ua.txt"
+
 class View;
 class Control;
 
-void Dictionary::loadDictionary() {     
+void Dictionary::loadDictionary(bool isUkrainian) {     
     srand(time(0)); 
+
+    if(isUkrainian) {
+        filename = DICTUA;
+    } else {
+        filename = DICTEN;
+    }
 
     string word;
     ifstream dict(filename);
@@ -18,9 +28,9 @@ void Dictionary::loadDictionary() {
         for (auto& x : word) {
             x = toupper(x);
         }
-        words.insert(word.substr(0,word.length()));
+        words.insert(word);
 
-        if((word.size() == 5 && beginningWord == "") && (rand()%20) == 0 ) {
+        if((word.length() == 5 && beginningWord == GOD_WORD) && (rand()%20) == 0 ) {
             beginningWord = word;
         }
     }

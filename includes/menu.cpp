@@ -27,7 +27,7 @@ bool Menu::askLanguage(){
     string lan;
     cout << "Type 1 for English, any other symbol for Ukrainian: ";
     cin >> lan;
-    if(lan[0] == '1'){
+    if(lan.at(0) == '1'){
         return false;
     } else {
         return true;
@@ -45,7 +45,7 @@ bool Menu::askIsPC(){
     string ch;
     cout << "Type 1 to play against PC, any other symbol for second player: ";
     cin >> ch;
-    if (ch[0] == '1'){
+    if (ch.at(0) == '1'){
         return true;
     }
     else{ 
@@ -57,7 +57,7 @@ bool Menu::askDifficulty(){
     string ch;
     cout << "Type 1 for easy difficulty, any other symbol for hard difficulty: ";
     cin >> ch;
-    if (ch[0] == '1'){
+    if (ch.at(0) == '1'){
         return false;
     }
     else{ 
@@ -70,11 +70,11 @@ void Menu::exitGame(){
     cout << "Y(yes)" << "\t" << "N(no)\n";
     string ch;
     cin >> ch;
-    if (ch[0] == 'Y' || ch[0] == 'y'){
+    if (ch.at(0) == L'Y' || ch.at(0) == L'y'){
         cout << "restarting game";
         //якось запуститься знову
     }
-    else if (ch[0] == 'N' || ch[0] == 'n'){
+    else if (ch.at(0) == L'N' || ch.at(0) == L'n'){
         cout << "closing...";
         //закриється
     }

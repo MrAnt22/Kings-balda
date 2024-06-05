@@ -27,7 +27,7 @@ class Control {
         bool isDifficult = false;
         void clearBoard(Board& board);
         void randomizeFirstPlayer();
-        bool place(Board& board, Coordinates& obj,Dictionary& dict);
+        bool place(Board& board, Coordinates& obj,Dictionary& dict, bool isP2);
         Coordinates evaluateInput(string inp);
         bool generateMove(Board& board, Dictionary& dict, string& res, int& misx, int& misy, char& misch);
         bool generateMove(Board& board, Dictionary& dict);

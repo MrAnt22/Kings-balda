@@ -12,10 +12,6 @@
 #include <string>
 #include <fstream>
 #include <algorithm> 
-#include <iomanip>
-
-#define SIZE 5
-#define GOD_WORD "LIGHT"
 
 using namespace std;
 
@@ -23,7 +19,6 @@ int main() {
     Menu menu;
 
     Dictionary dict;
-    dict.loadDictionary();
     
     View viewport;
     Control game;
@@ -31,7 +26,6 @@ int main() {
     Board board;
 
     game.clearBoard(board);
-    game.centerWord(board, dict.beginningWord);
 
     string c;
     string resword;
@@ -48,9 +42,18 @@ int main() {
         game.isDifficult = menu.askDifficulty();
     }
     game.isUkrainian =  menu.askLanguage();
+    dict.loadDictionary(game.isUkrainian);
+    game.centerWord(board, dict.beginningWord);
     game.randomizeFirstPlayer();
-
+    
+    //main game loop
     while(true) {
+        viewport.refreshScreen();
+        if(!game.generateMove(board, dict)) {
+            viewport.endgameScreen(board, dict, game);
+            return 0;
+        }
+
         viewport.displayBoard(board);
         if(resword != "") {
             cout << "The bot made the word \"" << resword << "\"." << endl << endl;
@@ -62,35 +65,32 @@ int main() {
         viewport.displayScores(dict, game.isPC);
         cout << endl;
 
-        if(!game.generateMove(board, dict)) {
-            viewport.refreshScreen();
-            viewport.endgameScreen(board, dict, game);
-            return 0;
-        }
         
         if(didBotSkipTurn) {
             cout << "The bot skipped his turn." << endl << endl;
         }
         cout << "Format: 3A=X,UL; U->Up; D->Down; R->Right; L->Left; Enter 'S' to skip turn" << endl;
-        cout << "Your turn: ";
+        cout << "P" << ((int)game.isPlayerTurn)+1 <<"'s turn: ";
         cin >> c;
         if(c[0] == '!') {
             break;
         }
         
         Coordinates coord;
+
         if(c[0] != 'S') {
             coord = game.evaluateInput(c);
             if(!coord.ignore) {
-                game.place(board, coord, dict);  
-                didBotSkipTurn = !game.generateMove(board, dict, resword, misx, misy, misch);
+                coord.ignore = !game.place(board, coord, dict, game.isPlayerTurn);
+                if(!game.isPC && !coord.ignore) {
+                    game.isPlayerTurn = !game.isPlayerTurn;
+                }
             }
-        } else {
-            didBotSkipTurn = !game.generateMove(board, dict, resword, misx, misy, misch);
         }
 
-
-        viewport.refreshScreen();
+        if(!coord.ignore && game.isPC) {
+            didBotSkipTurn = !game.generateMove(board, dict, resword, misx, misy, misch);
+        }
     }
 
     return 0;
