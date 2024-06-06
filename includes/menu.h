@@ -16,7 +16,6 @@ enum Gamestate {
 class Menu {
 public:
     int state = Mainmenu;
-    bool askLanguage();
     string askName(bool isFirstPlayer = true);
     bool askIsPC();
     bool askDifficulty();

@@ -25,6 +25,11 @@ struct Gamedata {
                 board.field[i][j] = brd.field[i][j];
             }
         }
+        for(int i = 0; i < brd.size; i++) {
+            for(int j = 0; j < brd.size; j++) {
+                board.isP1[i][j] = brd.isP1[i][j];
+            }
+        }
 
         p1name = p1n;
         p2name = p2n;

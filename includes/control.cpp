@@ -112,18 +112,28 @@ bool Control::place(Board& board, Coordinates& obj, Dictionary& dict, bool isP2)
     if(canFormWord(board, str, x, y) && (dict.words.find(str) != dict.words.end())) {
         if(!isP2) {
             dict.userWords.insert(str);
+            board.p1Move.x = obj.x;
+            board.p1Move.y = obj.y;
         } else {
             dict.pcWords.insert(str);
+            board.p2Move.x = obj.x;
+            board.p2Move.y = obj.y;
         }
+        board.isP1[obj.x][obj.y] = !isP2+1; 
         return true;
     }
     reverse(str.begin(), str.end());
     if(canFormWord(board, str, x, y) && (dict.words.find(str) != dict.words.end())) {
         if(!isP2) {
             dict.userWords.insert(str);
+            board.p1Move.x = obj.x;
+            board.p1Move.y = obj.y;
         } else {
             dict.pcWords.insert(str);
+            board.p2Move.x = obj.x;
+            board.p2Move.y = obj.y;
         }
+        board.isP1[obj.x][obj.y] = !isP2+1; 
         return true;
     }
     board.field[obj.x][obj.y] = '\0';
@@ -228,6 +238,9 @@ bool Control::generateMove(Board& board, Dictionary& dict, string& res, int& mis
                                 misy = j;
                                 misch = c;
                                 board.field[i][j] = c;
+                                board.isP1[misx][misy] = 1;
+                                board.p2Move.x = misx;
+                                board.p2Move.y = misy;
                                 dict.pcWords.insert(word);
                                 return true;
                             } else {
@@ -304,6 +317,12 @@ void Control::saveGame(Board& board, Dictionary& dict) {
             }
         }
     }
+    leader <<endl <<  "isp1:";
+    for(int i = 0; i < gd.board.size; i++) {
+        for(int j = 0; j < gd.board.size; j++) {
+            leader << "" << gd.board.isP1[i][j];
+        }
+    }
     leader.close();
 
     if(!gd.isPC) {    
@@ -326,6 +345,12 @@ void Control::saveGame(Board& board, Dictionary& dict) {
                 } else {
                     leader << " ";
                 }
+            }
+        }
+        leader << endl << "isp1:";
+        for(int i = 0; i < gd.board.size; i++) {
+            for(int j = 0; j < gd.board.size; j++) {
+                leader << "" << int((!bool(gd.board.isP1[i][j]-1))+1);
             }
         }
         leader.close();
@@ -358,6 +383,11 @@ Gamedata Control::getLeaderboards(string name) {
                         } else {
                             gd.board.field[i / SIZE][i % SIZE] = board_str[i];
                         }
+                    }
+                } else if (str.rfind("isp1:", 0) == 0) {
+                    string board_str = str.substr(5);
+                    for (int i = 0; i < SIZE * SIZE; ++i) {
+                        gd.board.isP1[i / SIZE][i % SIZE] = (int)board_str[i]-'0';
                     }
                 }
             }
@@ -408,6 +438,11 @@ vector<Gamedata> Control::getLeaderboards() {
                                     } else {
                                         gd.board.field[i / SIZE][i % SIZE] = board_str[i];
                                     }
+                                }
+                            } else if (str.rfind("isp1:", 0) == 0) {
+                                string board_str = str.substr(5);
+                                for (int i = 0; i < SIZE * SIZE; ++i) {
+                                    gd.board.isP1[i / SIZE][i % SIZE] = board_str[i]-'0';
                                 }
                             }
                         }

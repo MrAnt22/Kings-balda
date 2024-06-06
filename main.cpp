@@ -13,6 +13,25 @@
 #include <fstream>
 #include <algorithm>
 
+#define REDC "\x1B[31m"
+#define GREENC "\x1B[32m"
+#define YELLOWC "\x1B[33m"
+#define BLUEC "\x1B[34m"
+#define MAGENTAC "\x1B[35m"
+#define CYANC "\x1B[36m"
+#define LIGHTGRAYC "\x1B[37m"
+
+#define BG_GREENC "\x1B[42m"
+#define BG_YELLOWC "\x1B[43m"
+#define BG_BLUEC "\x1B[44m"
+#define BG_MAGENTAC "\x1B[45m"
+#define BG_CYANC "\x1B[46m"
+#define BG_LIGHTGRAYC "\x1B[47m"
+
+#define BOLD "\x1B[1m"
+#define UNDERLINE "\x1B[4m"
+#define RESET "\x1B[0m"
+
 using namespace std;
 
 int main() {
@@ -32,7 +51,6 @@ int main() {
     int misy;
     char misch;
     bool didBotSkipTurn = false;
-    bool didPlayerSkip = false;
     Coordinates coord;
 
     while(true) {
@@ -40,8 +58,8 @@ int main() {
         switch(menu.state) {
             case Mainmenu:
             while(true) {
-                cout << "What do you want to do?" << endl;
-                cout  << "'!' for exit, 'L' for leaderboards, any key to play:";
+                cout << BOLD "What do you want to do?" RESET << endl;
+                cout  << "'" REDC "!" RESET "' to " REDC "exit" RESET ", '" BLUEC "L" RESET "' for " BLUEC "leaderboards" RESET ", " GREENC "any" RESET " key to " GREENC "play" RESET ": ";
                 cin >> c;
                 if(c.at(0) == '!') {
                     cout << endl;
@@ -98,7 +116,9 @@ int main() {
                     viewport.displayScores(dict, game);
                     cout << endl;
 
-                    cout << "Format: 3A=X,UL; U->Up; D->Down; R->Right; L->Left; Enter 'S' to skip turn" << endl;
+                    cout << "Format: " BOLD "3A=X,UL" RESET ";" BOLD " U" RESET "->" UNDERLINE "Up" RESET  
+                    BOLD " D" RESET "->" UNDERLINE "Down" RESET  BOLD " L" RESET "->" UNDERLINE "Left" RESET  
+                    BOLD " R" RESET "->" UNDERLINE "Right" RESET " Enter '" BOLD "S" RESET "' to " UNDERLINE "skip" RESET " turn" << endl;
                     cout << "P" << ((int)game.isPlayerTurn)+1 <<"'s turn: ";
                     cin >> c;
                     if(c[0] == '!') {
@@ -109,12 +129,6 @@ int main() {
                     }
 
                     if(c[0] != 'S') {
-                        if(didPlayerSkip && game.isPC) {
-                            viewport.endgameScreen(board, dict, game);
-                            game.saveGame(board, dict);
-                            menu.state = Mainmenu;
-                            break;
-                        }
                         coord = game.evaluateInput(c);
                         if(!coord.ignore) {
                             coord.ignore = !game.place(board, coord, dict, game.isPlayerTurn);
@@ -122,7 +136,6 @@ int main() {
                                 game.isPlayerTurn = !game.isPlayerTurn;
                             }
                         }
-                        didPlayerSkip = true;
                     }
 
                     if(!coord.ignore && game.isPC) {
