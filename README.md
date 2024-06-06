@@ -20,13 +20,10 @@
 
 - [x] bot make move: randomize position
 
-- [ ] easy difficulty: skip sometime move
-- [ ] medium difficulty: no skip just move
-- [ ] hard difficulty: see all moves then do move
+- [x] easy difficulty: skip sometime move
+- [x] hard difficulty: see all moves then do move
 
-- [ ] ukrainian dictionary
-
-- [ ] leaderboards
+- [x] leaderboards
 
 - [x] 2 players gameplay
 

@@ -10,10 +10,24 @@
 #include <algorithm>
 #include <iostream>
 #include <random>
+#include <vector>
+#include <filesystem>
+
+namespace fs = filesystem;
+
+#define SIZE 5
 
 using namespace std;
 
 class Dictionary;
+
+int Control::score(bool isUser,Dictionary& dict){
+    int sumScore = 0;
+    for(auto word: (isUser?dict.userWords:dict.pcWords)) {
+            sumScore += word.length();
+        }
+    return sumScore;
+}
 
 bool Control::canFormWord(Board& board, const string& word, int i, int j) {
     if (dfs(board, word, i, j, 0) && (board.field[i][j] == word.at(0))) {
@@ -47,6 +61,7 @@ bool Control::dfs(Board& board, const string& word, int r, int c, int index) {
     return found;
 }
 
+// очистити дошку
 void Control::clearBoard(Board& board) {
     for(int i=0;i<board.size;i++){
         for(int j=0;j<board.size;j++){
@@ -55,11 +70,13 @@ void Control::clearBoard(Board& board) {
     }
 }
 
+// рандом перший гравцеь
 void Control::randomizeFirstPlayer() {
     srand(time(0));
     isFirstPlayerFirst = rand()%2;
 }
  
+ // Поставити за координатами букву на дошку (і перевірити чи воно формує слово)
 bool Control::place(Board& board, Coordinates& obj, Dictionary& dict, bool isP2) {
     if(obj.ignore) {
         return false;
@@ -112,7 +129,8 @@ bool Control::place(Board& board, Coordinates& obj, Dictionary& dict, bool isP2)
     board.field[obj.x][obj.y] = '\0';
     return false;
 }
-    
+
+ // Конвертувати ввід користувача у координати   
 Coordinates Control::evaluateInput(string inp) {
     Coordinates obj;
     if((int)inp.size()<6) {
@@ -144,6 +162,7 @@ Coordinates Control::evaluateInput(string inp) {
     return obj;
 }
 
+// Перевірити чи на дошці можна скласти слова 
 bool Control::generateMove(Board& board, Dictionary& dict) {
     for (int i = 0; i < board.size; ++i) {
         for (int j = 0; j < board.size; ++j) {
@@ -166,8 +185,22 @@ bool Control::generateMove(Board& board, Dictionary& dict) {
     return false;
 }
 
+//для тяжкої складності
+struct LengthComparator {
+    bool operator()(const string &a, const string &b) const {
+        if (a.length() != b.length())
+            return a.length() > b.length();
+        return a > b;
+    }
+};
+
+//Знайти слово яке можна поставити на дошку і поставити його (комп'ютер)
 bool Control::generateMove(Board& board, Dictionary& dict, string& res, int& misx, int& misy, char& misch) {
     srand(time(0));
+    //skip turn
+    if(!isDifficult && (rand()%5)==0) {
+        return false;
+    }
 
     vector<pair<int, int>> coordinates;
     for (int x = 0; x < 5; ++x) {
@@ -178,6 +211,8 @@ bool Control::generateMove(Board& board, Dictionary& dict, string& res, int& mis
 
     shuffle(coordinates.begin(), coordinates.end(), default_random_engine(rand()));
 
+    string longestWord;
+
     for (const auto& coord : coordinates) {
         int i = coord.first;
         int j = coord.second;
@@ -187,14 +222,24 @@ bool Control::generateMove(Board& board, Dictionary& dict, string& res, int& mis
                 for (auto word : dict.words) {
                     if((dict.userWords.find(word) == dict.userWords.end() && dict.pcWords.find(word) == dict.pcWords.end()) && word != dict.beginningWord) {
                         if (canFormWord(board, word,i ,j )) {
-                            board.field[i][j] = '\0';
-                            res = word;
-                            misx = i;
-                            misy = j;
-                            misch = c;
-                            board.field[i][j] = c;
-                            dict.pcWords.insert(word);
-                            return true;
+                            if(!isDifficult) {
+                                res = word;
+                                misx = i;
+                                misy = j;
+                                misch = c;
+                                board.field[i][j] = c;
+                                dict.pcWords.insert(word);
+                                return true;
+                            } else {
+                                if (word.length() > longestWord.length()) {
+                                    longestWord = word;
+                                    res = word;
+                                    misx = i;
+                                    misy = j;
+                                    misch = c;
+                                    break;
+                                }
+                            }
                         }
                     }
                 }
@@ -202,11 +247,183 @@ bool Control::generateMove(Board& board, Dictionary& dict, string& res, int& mis
             }
         }
     }
+
+    if(!longestWord.empty() && isDifficult) {
+        board.field[misx][misy] = misch;
+        dict.pcWords.insert(longestWord);
+        return true;
+    }
+
     return false;
 }
 
+// слово в центр
 void Control::centerWord(Board& board, string word) {
     for(int i = 0; i < board.size; i++) {
         board.field[board.size/2][i] = word.at(i);
     }
+}
+
+void Control::saveGame(Board& board, Dictionary& dict) {
+    Gamedata gd(board, name1, name2, score(true, dict), score(false, dict), isPC);
+    ofstream leader;
+
+    string filename = "leaderboards/lb_";
+    filename += name1;
+
+    Gamedata p1g = getLeaderboards(name1);
+    if(p1g.p1score > gd.p1score) {
+        return;
+    }
+    if(!gd.isPC) {
+        Gamedata p2g = getLeaderboards(name2);
+        if(p2g.p1score > gd.p1score) {
+            return;
+        }
+    }
+
+    leader.open(filename);
+    //name1
+    //name2
+    //0/1 (isPC)
+    //p1s
+    //p2s
+    //ABCDE  F G H (board 25 symbols)
+    leader << "p1n:"<< gd.p1name << endl;
+    leader << "p2n:" << gd.p2name << endl;
+    leader << "isPC:" << (int)gd.isPC << endl;
+    leader << "p1s:" << gd.p1score << endl;
+    leader << "p2s:" << gd.p2score << endl;
+    leader << "board:";
+    for(int i = 0; i < gd.board.size; i++) {
+        for(int j = 0; j < gd.board.size; j++) {
+            if(gd.board.field[i][j] != '\0') {
+                leader << gd.board.field[i][j];
+            } else {
+                leader << " ";
+            }
+        }
+    }
+    leader.close();
+
+    if(!gd.isPC) {    
+        ofstream leader;
+
+        string filename = "leaderboards/lb_";
+        filename += name2;
+
+        leader.open(filename);
+        leader << "p1n:"<< gd.p2name << endl;
+        leader << "p2n:" << gd.p1name << endl;
+        leader << "isPC:" << (int)gd.isPC << endl;
+        leader << "p1s:" << gd.p2score << endl;
+        leader << "p2s:" << gd.p1score << endl;
+        leader << "board:";
+        for(int i = 0; i < gd.board.size; i++) {
+            for(int j = 0; j < gd.board.size; j++) {
+                if(gd.board.field[i][j] != '\0') {
+                    leader << gd.board.field[i][j];
+                } else {
+                    leader << " ";
+                }
+            }
+        }
+        leader.close();
+    }
+}
+
+Gamedata Control::getLeaderboards(string name) {
+    Gamedata gd;
+
+    try {
+        ifstream file("./leaderboards/lb_" + name);
+        if (file.is_open()) {
+            string str;
+            while (getline(file, str)) {
+                if (str.rfind("p1n:", 0) == 0) {
+                    gd.p1name = str.substr(4);
+                } else if (str.rfind("p2n:", 0) == 0) {
+                    gd.p2name = str.substr(4);
+                } else if (str.rfind("isPC:", 0) == 0) {
+                    gd.isPC = stoi(str.substr(5));
+                } else if (str.rfind("p1s:", 0) == 0) {
+                    gd.p1score = stoi(str.substr(4));
+                } else if (str.rfind("p2s:", 0) == 0) {
+                    gd.p2score = stoi(str.substr(4));
+                } else if (str.rfind("board:", 0) == 0) {
+                    string board_str = str.substr(6);
+                    for (int i = 0; i < SIZE * SIZE; ++i) {
+                        if (board_str[i] == ' ') {
+                            gd.board.field[i / SIZE][i % SIZE] = '\0';
+                        } else {
+                            gd.board.field[i / SIZE][i % SIZE] = board_str[i];
+                        }
+                    }
+                }
+            }
+            file.close();
+        } else {
+            gd.ignore = true;
+            return gd;
+        }
+    } catch (const exception& e) {
+        gd.ignore = true;
+        return gd;
+    }
+
+    return gd;
+}
+
+vector<Gamedata> Control::getLeaderboards() {
+    vector<Gamedata> lbs;
+    Gamedata gd;
+    string path = "./leaderboards";
+
+    try {
+        for (const auto& entry : fs::directory_iterator(path)) {
+            if (entry.is_regular_file()) {
+                string filename = entry.path().filename().string();
+                if (filename.rfind("lb_", 0) == 0) {
+                    string fn = path + "/" + filename;
+
+                    ifstream file(fn);
+                    if (file.is_open()) {
+                        string str;
+                        while (getline(file, str)) {
+                            if (str.rfind("p1n:", 0) == 0) {
+                                gd.p1name = str.substr(4);
+                            } else if (str.rfind("p2n:", 0) == 0) {
+                                gd.p2name = str.substr(4);
+                            } else if (str.rfind("isPC:", 0) == 0) {
+                                gd.isPC = stoi(str.substr(5));
+                            } else if (str.rfind("p1s:", 0) == 0) {
+                                gd.p1score = stoi(str.substr(4));
+                            } else if (str.rfind("p2s:", 0) == 0) {
+                                gd.p2score = stoi(str.substr(4));
+                            } else if (str.rfind("board:", 0) == 0) {
+                                string board_str = str.substr(6);
+                                for (int i = 0; i < SIZE * SIZE; ++i) {
+                                    if (board_str[i] == ' ') {
+                                        gd.board.field[i / SIZE][i % SIZE] = '\0';
+                                    } else {
+                                        gd.board.field[i / SIZE][i % SIZE] = board_str[i];
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        cerr << "Could not open file: " << filename << endl;
+                    }
+                }
+            }
+            lbs.push_back(gd);
+            gd = Gamedata();
+        }
+    } catch (const fs::filesystem_error& e) {
+        cerr << "Filesystem error: " << e.what() << endl;
+    } catch (const exception& e) {
+        cerr << "General error: " << e.what() << endl;
+    }
+
+    return lbs;
 }

@@ -1,10 +1,13 @@
 #ifndef CONTROL_H
 #define CONTROL_H
 
+#include "gamedata.h"
+
 #include <set>
 #include <string>
 #include <fstream>
 #include <algorithm>
+#include <vector>
 
 using namespace std;
 
@@ -19,10 +22,8 @@ class Control {
     public:
         bool isFirstPlayerFirst = true;
         bool isPlayerTurn = false;
-        bool isUkrainian = false;
         string name1 = "Name";
         string name2 = "Tyler Durden";
-        int state = 0;
         bool isPC = true;
         bool isDifficult = false;
         void clearBoard(Board& board);
@@ -31,7 +32,11 @@ class Control {
         Coordinates evaluateInput(string inp);
         bool generateMove(Board& board, Dictionary& dict, string& res, int& misx, int& misy, char& misch);
         bool generateMove(Board& board, Dictionary& dict);
+        int score(bool isUser,Dictionary& dict);
         void centerWord(Board& board, string word);
+        void saveGame(Board& board, Dictionary& dict);
+        vector<Gamedata> getLeaderboards();
+        Gamedata getLeaderboards(string name);
 };
 
 #endif

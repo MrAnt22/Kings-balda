@@ -2,6 +2,7 @@
 #include "board.h"
 #include "dictionary.h"
 #include "menu.h"
+#include "view.h"
 
 #include <string>
 #include <iostream>
@@ -11,17 +12,6 @@ using namespace std;
 class Board;
 class Dictionary;
 class Control;
-
-bool Menu::viewLeaderboards(const string& name) {
-    cout << "Here's leaderboard:" << endl;
-    string leaders;
-    ifstream leaderboards("leaderboards.txt");
-    while (getline (leaderboards, leaders)){
-        cout << leaders << endl;
-    }
-    leaderboards.close();
-    return true;
-}
 
 bool Menu::askLanguage(){
     string lan;

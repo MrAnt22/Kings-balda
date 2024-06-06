@@ -2,12 +2,11 @@
 #define DICTIONARY_H
 
 #include <string>
-#include <set>
+#include <unordered_set>
 #include <fstream>
 
 #define GOD_WORD "LIGHT"
 #define DICTEN "dict_en.txt"
-#define DICTUA "dict_ua.txt"
 
 using namespace std;
 
@@ -20,11 +19,11 @@ public:
     friend class View;
     friend class Control;
     string beginningWord = GOD_WORD;
-    set<string> words;
-    set<string> userWords;
-    set<string> pcWords;
+    unordered_set<string> words;
+    unordered_set<string> userWords;
+    unordered_set<string> pcWords;
     string filename = DICTEN;
-    void loadDictionary(bool isUkrainian = false);
+    void loadDictionary();
 };
 
 #endif

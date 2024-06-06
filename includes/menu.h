@@ -9,9 +9,13 @@ class Board;
 class Dictionary;
 class Control;
 
+enum Gamestate {
+    Mainmenu = 0, Settingsmenu = 1, Gameplay = 2, Leaderboardmenu = 3
+};
+
 class Menu {
 public:
-    bool viewLeaderboards(const string& name);
+    int state = Mainmenu;
     bool askLanguage();
     string askName(bool isFirstPlayer = true);
     bool askIsPC();

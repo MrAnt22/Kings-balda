@@ -7,19 +7,12 @@
 
 #define GOD_WORD "LIGHT"
 #define DICTEN "dict_en.txt"
-#define DICTUA "dict_ua.txt"
 
 class View;
 class Control;
 
-void Dictionary::loadDictionary(bool isUkrainian) {     
+void Dictionary::loadDictionary() {     
     srand(time(0)); 
-
-    if(isUkrainian) {
-        filename = DICTUA;
-    } else {
-        filename = DICTEN;
-    }
 
     string word;
     ifstream dict(filename);

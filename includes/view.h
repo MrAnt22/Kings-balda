@@ -14,14 +14,15 @@ class Dictionary;
 class Control;
 
 class View {
-    int score(bool isUser,Dictionary& dict);
     public:
     void displaySettings(Control& ctrl);
     void displayBoard(Board& board);
-    void displayScores(Dictionary& dict, bool isPc);
+    void displayScores(Dictionary& dict, Control& ctrl);
+    void displayLeaderboards(Control& ctrl);
     void displayWords(Dictionary& dict, bool isPc);
     void refreshScreen() ;
     void endgameScreen(Board& board, Dictionary& dict, Control& ctrl);
+    void displayLBGame(Gamedata gd);
 };
 
 #endif
