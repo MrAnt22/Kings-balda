@@ -42,36 +42,35 @@ string Menu::askName(bool isFirstPlayer){
 
 bool Menu::askIsPC(){
     string ch;
-    cout << "Type any symbol for pc, or type '1' second player: ";
+    cout << "Type " CYANC "any" RESET " symbol for pc, or type '" GREENC "1" RESET "' for second player: ";
     cin >> ch;
     return (ch.at(0) != '1');
 }
 
 bool Menu::askDifficulty(){
     string ch;
-    cout << "Type any symbol for easy difficulty, or type '1' for hard difficulty: ";
+    cout << "Type " CYANC "any" RESET "symbol for" CYANC "easy" RESET "difficulty, or type '" REDC "1" RESET "' for" REDC  "hard" RESET "difficulty: ";
     cin >> ch;
     return (ch.at(0) == '1');
 }
 
-void Menu::exitGame(){
-    cout << "Want to restart?" << endl;
-    cout << "Y(yes)" << "\t" << "N(no)\n";
-    string ch;
-    cin >> ch;
-    if (ch.at(0) == L'Y' || ch.at(0) == L'y'){
-        cout << "restarting game";
-        //якось запуститься знову
-    }
-    else if (ch.at(0) == L'N' || ch.at(0) == L'n'){
-        cout << "closing...";
-        //закриється
-    }
-    else{
-        cout << "error(try to write N-for close or Y-to restart)";
-    }
+void Menu::MainMenu() {
+    cout << BOLD "What do you want to do?" RESET << endl;
+    cout  << "'" REDC "!" RESET "' to " REDC "exit" RESET ", '" BLUEC "L" RESET "' for " BLUEC "leaderboards" RESET ", " GREENC "any" RESET " key to " GREENC "play" RESET ": ";
 }
 
-void Menu::resetGame(Control ctrl, Dictionary dict, Board board){
-    
+void Menu::LeaderboardsMenu() {
+        cout << "What do you want to do?" << endl;
+        cout  << "'!' for main menu or enter username to see their best game: ";
+}
+
+void Menu::LbsGoBack() {
+    cout  << "Press any key to go back to the leaderboards menu: ";
+}
+
+void Menu::userEnterMove(bool isPlayerTurn) {
+    cout << "Format: " BOLD "3A=X,UL" RESET ";" BOLD " U" RESET "->" UNDERLINE "Up" RESET  
+    BOLD " D" RESET "->" UNDERLINE "Down" RESET  BOLD " L" RESET "->" UNDERLINE "Left" RESET  
+    BOLD " R" RESET "->" UNDERLINE "Right" RESET " Enter '" BOLD "S" RESET "' to " UNDERLINE "skip" RESET " turn" << endl;
+    cout << "P" << ((int)isPlayerTurn)+1 <<"'s turn: ";
 }

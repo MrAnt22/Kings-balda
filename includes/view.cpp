@@ -29,7 +29,6 @@
 #define UNDERLINE "\x1B[4m"
 #define RESET "\x1B[0m"
 
-
 using namespace std;
 
 class Dictionary;

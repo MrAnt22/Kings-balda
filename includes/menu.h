@@ -21,6 +21,10 @@ public:
     bool askDifficulty();
     void exitGame();
     void resetGame(Control ctrl, Dictionary dict, Board board);
+    void MainMenu();
+    void LeaderboardsMenu();
+    void LbsGoBack();
+    void userEnterMove(bool isPlayerTurn);
 };
 
 #endif

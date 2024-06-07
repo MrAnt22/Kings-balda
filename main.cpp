@@ -58,8 +58,7 @@ int main() {
         switch(menu.state) {
             case Mainmenu:
             while(true) {
-                cout << BOLD "What do you want to do?" RESET << endl;
-                cout  << "'" REDC "!" RESET "' to " REDC "exit" RESET ", '" BLUEC "L" RESET "' for " BLUEC "leaderboards" RESET ", " GREENC "any" RESET " key to " GREENC "play" RESET ": ";
+                menu.MainMenu();
                 cin >> c;
                 if(c.at(0) == '!') {
                     cout << endl;
@@ -116,10 +115,7 @@ int main() {
                     viewport.displayScores(dict, game);
                     cout << endl;
 
-                    cout << "Format: " BOLD "3A=X,UL" RESET ";" BOLD " U" RESET "->" UNDERLINE "Up" RESET  
-                    BOLD " D" RESET "->" UNDERLINE "Down" RESET  BOLD " L" RESET "->" UNDERLINE "Left" RESET  
-                    BOLD " R" RESET "->" UNDERLINE "Right" RESET " Enter '" BOLD "S" RESET "' to " UNDERLINE "skip" RESET " turn" << endl;
-                    cout << "P" << ((int)game.isPlayerTurn)+1 <<"'s turn: ";
+                    menu.userEnterMove(game.isPlayerTurn);
                     cin >> c;
                     if(c[0] == '!') {
                         viewport.endgameScreen(board, dict, game);
@@ -148,8 +144,7 @@ int main() {
                     viewport.refreshScreen();
                     viewport.displayLeaderboards(game);
                     cout << endl;
-                    cout << "What do you want to do?" << endl;
-                    cout  << "'!' for main menu or enter username to see their best game: ";
+                    menu.LeaderboardsMenu();
                     cin >> c;
                     if(c.at(0) == '!') {
                         viewport.refreshScreen();
@@ -161,7 +156,7 @@ int main() {
                         if(!gd.ignore) {
                             viewport.displayLBGame(gd);
                             cout << endl << endl << endl;
-                            cout  << "Press any key to go back to the leaderboards menu: ";
+                            menu.LbsGoBack();
                             cin >> c;
                         }
                     }
