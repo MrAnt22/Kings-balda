@@ -26,7 +26,3 @@
 - [x] leaderboards
 
 - [x] 2 players gameplay
-
-- [ ] easter egg zip bomb
-
-- [ ] funny easter eggs

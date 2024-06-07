@@ -21,6 +21,7 @@ using namespace std;
 
 class Dictionary;
 
+//рахунок
 int Control::score(bool isUser,Dictionary& dict){
     int sumScore = 0;
     for(auto word: (isUser?dict.userWords:dict.pcWords)) {
@@ -29,6 +30,7 @@ int Control::score(bool isUser,Dictionary& dict){
     return sumScore;
 }
 
+//перевірити чи слово можливо скласти
 bool Control::canFormWord(Board& board, const string& word, int i, int j) {
     if (dfs(board, word, i, j, 0) && (board.field[i][j] == word.at(0))) {
         return true;
@@ -41,6 +43,7 @@ bool Control::canFormWord(Board& board, const string& word, int i, int j) {
     return false;
 }
 
+//depth first search, власне алгоритм яким все клеїться
 bool Control::dfs(Board& board, const string& word, int r, int c, int index) {
     if (index == (int)word.length()) return true;
     
@@ -183,7 +186,7 @@ bool Control::generateMove(Board& board, Dictionary& dict) {
                         if((dict.userWords.find(word) == dict.userWords.end() && dict.pcWords.find(word) == dict.pcWords.end()) && word != dict.beginningWord) {
                             if (canFormWord(board, word, i, j)) {
                                 board.field[i][j] = '\0';
-                                return true;
+                                return true;    
                             }
                         }
                     }
@@ -277,6 +280,8 @@ void Control::centerWord(Board& board, string word) {
     }
 }
 
+
+//зберегти гру і лідерборд
 void Control::saveGame(Board& board, Dictionary& dict) {
     Gamedata gd(board, name1, name2, score(true, dict), score(false, dict), isPC);
     ofstream leader;
@@ -357,6 +362,7 @@ void Control::saveGame(Board& board, Dictionary& dict) {
     }
 }
 
+//отримати найкращу гру гравця
 Gamedata Control::getLeaderboards(string name) {
     Gamedata gd;
 
@@ -404,6 +410,7 @@ Gamedata Control::getLeaderboards(string name) {
     return gd;
 }
 
+//отримати список найкращих ігор
 vector<Gamedata> Control::getLeaderboards() {
     vector<Gamedata> lbs;
     Gamedata gd;
